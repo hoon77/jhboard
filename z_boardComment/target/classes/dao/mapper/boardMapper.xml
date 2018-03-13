@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.IBoardDao">
+
+	<resultMap type="board" id="boardMap">
+		<id column="b_id" property="bId" />
+		<result column="reg_date" property="regDate" />
+		<result column="group_id" property="groupId" />
+		<result column="group_seq" property="groupSeq" />
+		<result column="group_lv" property="groupLv" />
+		<result column="f_id" property="fId" />
+		<result column="m_id" property="mId" />
+	</resultMap>
+
+
+
+	<sql id="regDate">
+		<choose>
+			<when test="regDate != null">
+				#{regDate}
+			</when>
+			<otherwise>
+				sysdate()
+			</otherwise>
+		</choose>
+	</sql>
+
+
+	<insert id="insertBoard" parameterType="board" useGeneratedKeys="true"
+		keyProperty="bId">
+		INSERT INTO board VALUES
+		(0,
+		#{title},
+		#{content},
+		#{writer},
+		<include refid="regDate" />
+		,
+		#{hit},
+		#{up},
+		#{down},
+		#{groupId},
+		#{groupSeq},
+		#{groupLv},
+		#{fId},
+		#{pwd},
+		#{fileuri},
+		#{mId})
+	</insert>
+
+	<update id="updateBoard" parameterType="board">
+		UPDATE BOARD SET
+		title=#{title},
+		content = #{content},
+		writer = #{writer},
+		hit = #{hit},
+		up =#{up},
+		down =#{down},
+		group_id = #{groupId},
+		group_seq =#{groupSeq},
+		group_lv =#{groupLv},
+		f_id = #{fId},
+		pwd = #{pwd},
+		fileuri = #{fileuri},
+		m_id = #{mId}
+		WHERE b_id = #{bId}
+	</update>
+
+	<delete id="deleteBoard" parameterType="int">
+		DELETE FROM board WHERE
+		b_id = #{bId}
+	</delete>
+
+	<select id="selectBoard" resultMap="boardMap" parameterType="int">
+		SELECT * FROM board WHERE b_id = #{bId}
+	</select>
+
+	<select id="selectList" resultMap="boardMap" parameterType="java.util.HashMap">
+		SELECT * FROM board
+		<if test="mode != 0">
+			WHERE 1=0
+			<if test="title != null">
+				OR title LIKE '%${title}%'
+			</if>
+			<if test="content != null">
+				OR content LIKE '%${content}%'
+			</if>
+			<if test="writer != null">
+				OR writer LIKE '%${writer}%'
+			</if>
+		</if>
+		ORDER BY group_id DESC, group_seq ASC
+		LIMIT #{skip},
+		#{count}
+	</select>
+
+	<select id="selectMyList" resultMap="boardMap" parameterType="java.util.HashMap">
+		SELECT * FROM board
+		WHERE m_id = #{mId}
+		ORDER BY group_id DESC,
+		group_seq ASC
+		LIMIT #{skip},#{count}
+	</select>
+
+
+
+	<select id="selectUpBestList" resultMap="boardMap"
+		parameterType="java.util.HashMap">
+		SELECT * FROM board
+		WHERE up >= 20
+		ORDER BY reg_date desc
+		LIMIT #{skip},#{count}
+	</select>
+
+
+
+
+	<select id="getBoardCount" resultType="int">
+		SELECT COUNT(*) FROM board
+	</select>
+
+
+	<select id="getUpBestCount" resultType="int">
+		select count(*) from
+		board
+		where up >= 20
+	</select>
+
+
+
+	<select id="getMyBoardCount" parameterType="int" resultType="int">
+		SELECT COUNT(*) FROM board
+		where m_id= #{mId}
+	</select>
+
+
+	<select id="getSearchBoardCount" parameterType="java.util.HashMap"
+		resultType="int">
+		SELECT COUNT(*) FROM board
+		<if test="mode != 0">
+			WHERE 1=0
+			<if test="title != null">
+				OR title LIKE '%${title}%'
+			</if>
+			<if test="content != null">
+				OR content LIKE '%${content}%'
+			</if>
+			<if test="writer != null">
+				OR writer LIKE '%${writer}%'
+			</if>
+		</if>
+	</select>
+
+
+
+
+
+	<update id="updateGroupSeq" parameterType="java.util.HashMap">
+		UPDATE board SET
+		group_seq = group_seq+1
+		WHERE group_id = #{group_id} AND group_seq >=
+		#{group_seq}
+	</update>
+
+
+
+	<select id="selectSobiList" parameterType="java.util.HashMap"
+		resultType="sobi">
+		select r_date,sum(balance) as balance
+		from sobi
+		where
+		year(r_date)= #{year} and month(r_date)=#{month}
+		group by day( r_date)
+	</select>
+
+
+</mapper>

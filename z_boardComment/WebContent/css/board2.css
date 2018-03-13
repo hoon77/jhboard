@@ -1,0 +1,44 @@
+@charset "EUC-KR";
+
+#wrap {
+	width: 970px;
+	height: 1000px;
+	margin-top: 80px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+h1 {
+	color: green;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 12px;
+	line-height: 24px;
+}
+
+table td, th {
+	border: #d3d3d3 solid 1px;
+	padding: 5px;
+}
+
+th {
+	background-color: #d5e1df;
+}
+
+img {
+	width: 220px;
+	height: 300px;
+}
+
+a {
+	text-decoration: none;
+	color: black;
+}
+
+a:hover {
+	text-decoration: underline;
+	color: green;
+}

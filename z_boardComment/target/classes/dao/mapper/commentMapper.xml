@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.ICommentDao">
+	<resultMap type="comment" id="commentMap">
+		<id column="c_id" property="cId" />
+		<result column="b_id" property="bId" />
+		<result column="m_id" property="mId" />
+		<result column="reg_date" property="regDate" />
+		<result column="group_id" property="groupId" />
+		<result column="group_seq" property="groupSeq" />
+		<result column="group_lv" property="groupLv" />
+	</resultMap>
+
+	<sql id="regDate">
+		<choose>
+			<when test="regDate != null">
+				#{regDate}
+			</when>
+			<otherwise>
+				sysdate()
+			</otherwise>
+		</choose>
+	</sql>
+
+
+
+	<insert id="insertComment" parameterType="comment"
+		useGeneratedKeys="true" keyProperty="cId">
+
+		INSERT INTO comment VALUES
+		(0,
+		#{comment},
+		#{writer},
+		#{pwd},
+		<include refid="regDate" />
+		,
+		#{bId},
+		#{groupId},
+		#{groupSeq},
+		#{groupLv},
+		#{mId})
+	</insert>
+
+	<update id="updateComment" parameterType="comment">
+		UPDATE comment SET
+		comment = #{comment},
+		writer= #{writer},
+		reg_date =
+		<include refid="regDate" />
+		,
+		group_id = #{groupId},
+		group_seq= #{groupSeq},
+		group_lv = #{groupLv},
+		m_id = #{mId}
+		WHERE c_id = #{cId}
+	</update>
+	<delete id="deleteComment" parameterType="int">
+		DELETE FROM comment
+		WHERE c_id = #{cId}
+	</delete>
+
+
+	<select id="countCommentBybId" parameterType="int" resultType="int">
+		select count(*) from comment where b_id = #{bId}
+	</select>
+
+	<select id="countCommentBymId" parameterType="int" resultType="int">
+		select count(*) from comment where m_id = #{mId}
+	</select>
+
+
+
+	<delete id="deleteCommentBybId" parameterType="int">
+		delete from
+		comment where b_id= #{bId}
+	</delete>
+	<select id="selectOne" parameterType="int" resultMap="commentMap">
+		SELECT *
+		FROM comment WHERE c_id = #{cId}
+	</select>
+	<update id="updateGroupSeq" parameterType="java.util.HashMap">
+		UPDATE comment SET
+		group_seq = group_seq + 1
+		WHERE
+		group_id = #{groupId} AND group_seq >=
+		#{groupSeq}
+	</update>
+	<select id="selectCommentByBId" parameterType="int" resultMap="commentMap">
+		SELECT * FROM comment WHERE b_id = #{bId}
+		ORDER BY group_id DESC,
+		group_seq ASC
+	</select>
+
+
+	<select id="selectMyCommentList" resultMap="commentMap"
+		parameterType="java.util.HashMap">
+		SELECT * FROM comment
+		WHERE m_id = #{mId}
+		ORDER BY
+		group_id
+		DESC,
+		group_seq ASC
+		LIMIT #{skip},#{count}
+	</select>
+
+
+</mapper>
+
+
+
+
+
